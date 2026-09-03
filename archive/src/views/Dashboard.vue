@@ -10,6 +10,13 @@
         </div>
 
         <div class="flex items-center gap-4">
+          <button @click="logout" 
+          type="button" 
+          class="rounded-lg border border-slate-700 px-5 py-2 text-sm
+               text-slate-300 hover:bg-slate-800"
+          >
+          Logout
+        </button>
 
           <div class="hidden text-right sm:block">
             <p class="text-sm font-semibold">Student</p>
@@ -593,9 +600,11 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 
 const route = useRoute()
+const router = useRouter()
 
 const student = computed(() => ({
   exam: route.query.exam || 'JEE',
@@ -621,4 +630,18 @@ const daysRemaining = computed(() => {
     Math.ceil(difference / (1000 * 60 * 60 * 24))
   )
 })
+
+async function logout() {
+  console.log("running logout function")
+  try {
+    await axios.post(
+      '/api/auth/logout',
+      {},
+      { withCredentials: true }
+    )
+    router.replace('/')
+
+  } catch (err) {
+  }
+}
 </script>

@@ -8,12 +8,20 @@
         ADYSHA<span class="text-indigo-400"> AI</span>
       </div>
 
-      <button
+      <div>
+      <router-link to="/register"
+        class="rounded-lg border border-slate-700 px-5 py-2 text-sm
+               text-slate-300 hover:bg-slate-800 mx-5"
+      >
+        Register
+    </router-link>
+      <router-link to="/login"
         class="rounded-lg border border-slate-700 px-5 py-2 text-sm
                text-slate-300 hover:bg-slate-800"
       >
         Login
-      </button>
+    </router-link>
+    </div>
 
     </nav>
 
@@ -119,3 +127,26 @@
 
   </div>
 </template>
+
+<script setup>
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
+
+const router = useRouter()
+console.log("hello")
+
+onMounted(async () => {
+
+  try {
+
+    await axios.get('/api/auth/me', { withCredentials: true })
+    router.replace('/dashboard')
+
+  } catch (err) {
+    // not logged in, stay on /home
+
+  }
+
+})
+</script>

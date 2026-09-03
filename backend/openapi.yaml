@@ -1,0 +1,300 @@
+openapi: 3.1.0
+
+info:
+  title: Authentication API
+  version: 1.0.0
+  description: API contract for user authentication and JWT cookie management.
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+paths:
+
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      description: Creates a new user account.
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+
+                password:
+                  type: string
+                  example: "12345678"
+
+                confirmation:
+                  type: string
+                  example: "12345678"
+
+              required:
+                - name
+                - email
+                - password
+                - confirmation
+
+      responses:
+
+        "201":
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Registration successfull
+
+                  user:
+                    $ref: "#/components/schemas/User"
+
+        "400":
+          description: Invalid registration request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+              examples:
+
+                missingFields:
+                  summary: Missing required fields
+                  value:
+                    error: Missing required fields
+
+                passwordMismatch:
+                  summary: Password confirmation does not match
+                  value:
+                    error: Confirm password is not same as password.
+
+                emailExists:
+                  summary: Email already exists
+                  value:
+                    error: Email already exists
+
+
+  /api/auth/login:
+    post:
+      summary: Log in a user
+      description: |
+        Authenticates a user using email and password.
+        On successful login, the server sets JWT access and refresh
+        tokens as HTTP-only cookies.
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+
+                password:
+                  type: string
+                  example: "12345678"
+
+              required:
+                - email
+                - password
+
+      responses:
+
+        "200":
+          description: Login successful. JWT cookies are set.
+          headers:
+            Set-Cookie:
+              description: |
+                Sets access and refresh JWT cookies.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/User"
+
+        "400":
+          description: Invalid login request or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+              examples:
+
+                missingFields:
+                  summary: Email or password missing
+                  value:
+                    error: Username and password required
+
+                invalidCredentials:
+                  summary: Incorrect email or password
+                  value:
+                    error: Invalid login credentials
+
+
+  /api/auth/logout:
+    post:
+      summary: Log out the current user
+      description: |
+        Removes the access token and refresh token JWT cookies.
+
+      security:
+        - cookieAuth: []
+
+      responses:
+
+        "200":
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logout successfull
+
+          headers:
+            Set-Cookie:
+              description: Clears the JWT access and refresh cookies.
+
+        "401":
+          description: Authentication required or access token is invalid
+
+
+  /api/auth/me:
+    get:
+      summary: Get current authenticated user
+      description: |
+        Returns information about the currently authenticated user.
+
+      security:
+        - cookieAuth: []
+
+      responses:
+
+        "200":
+          description: Current user information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+        "400":
+          description: User associated with the JWT was not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: User not found
+
+        "401":
+          description: Authentication required or access token is invalid
+
+
+  /api/auth/refresh:
+    post:
+      summary: Generate a new access token
+      description: |
+        Uses a valid refresh JWT cookie to generate a new access token.
+        The new access token is attached as an HTTP-only cookie.
+
+      security:
+        - refreshCookieAuth: []
+
+      responses:
+
+        "200":
+          description: Access token successfully regenerated
+          headers:
+            Set-Cookie:
+              description: Sets a new JWT access token cookie.
+
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Token generate successfull
+
+        "401":
+          description: Valid refresh token required
+
+
+components:
+
+  schemas:
+
+    User:
+      type: object
+      description: User information returned by the API.
+
+      properties:
+        id:
+          type: integer
+          example: 1
+
+        name:
+          type: string
+          example: John Doe
+
+        email:
+          type: string
+          format: email
+          example: john@example.com
+
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-08-21T12:30:00"
+
+      required:
+        - id
+        - name
+        - email
+        - created_at
+
+
+  securitySchemes:
+
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token_cookie
+      description: JWT access token stored in an HTTP-only cookie.
+
+    refreshCookieAuth:
+      type: apiKey
+      in: cookie
+      name: refresh_token_cookie
+      description: JWT refresh token stored in an HTTP-only cookie.
