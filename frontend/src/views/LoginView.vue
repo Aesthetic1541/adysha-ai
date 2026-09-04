@@ -6,6 +6,7 @@ import MascotGuide from '../components/MascotGuide.vue'
 import FormField from '../components/FormField.vue'
 import PasswordField from '../components/PasswordField.vue'
 import AppButton from '../components/AppButton.vue'
+import axios from 'axios'
 
 const router = useRouter()
 
@@ -26,9 +27,9 @@ const activeField = ref(null) // 'email' | 'password' | null
 const passwordVisible = ref(false)
 
 const mascotState = computed(() => {
-  if (activeField.value === 'password') return passwordVisible.value ? 'closed' : 'peeking'
   if (activeField.value === 'email') return 'typing'
-  return 'idle'
+  return passwordVisible.value ? 'closed' : 'peeking'
+  // return 'idle'
 })
 
 function triggerShake() {
@@ -36,21 +37,27 @@ function triggerShake() {
   setTimeout(() => (shake.value = false), 500)
 }
 
-function handleSubmit() {
+async function handleSubmit() {
   emailError.value = ''
   formError.value = ''
 
-  if (!email.value || !email.value.includes('@')) {
+  if (!email.value || !email.value.includes('@') || !email.value.includes('.')) {
     emailError.value = 'Enter a valid email address'
     return
   }
 
-  const isCorrect = email.value.trim().toLowerCase() === DEMO_EMAIL && password.value === DEMO_PASSWORD
+  try {
+    const response = await axios.post('/api/auth/login', {
+      email: email.value,
+      password: password.value
+    })
 
-  if (isCorrect) {
     submitted.value = true
-    setTimeout(() => router.push('/'), 900)
+    setTimeout(() => router.push('/home'), 900)
     return
+
+  } catch (err) {
+    formError.value = err.response?.data?.error || 'Login failed'
   }
 
   wrongAttempts.value += 1
@@ -115,7 +122,7 @@ function handleSubmit() {
         </form>
 
         <p class="mt-6 text-center text-xs text-ink-soft">
-          Demo credentials — <span class="font-mono text-ink">demo@adysha.com</span> / <span class="font-mono text-ink">demo1234</span>
+          Demo credentials — <span class="font-mono text-ink"> {{ DEMO_EMAIL }}</span> / <span class="font-mono text-ink">{{ DEMO_PASSWORD }}</span>
         </p>
 
         <p class="mt-4 text-center text-sm text-ink-soft">

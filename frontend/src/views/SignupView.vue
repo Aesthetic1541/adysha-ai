@@ -6,6 +6,7 @@ import MascotGuide from '../components/MascotGuide.vue'
 import FormField from '../components/FormField.vue'
 import PasswordField from '../components/PasswordField.vue'
 import AppButton from '../components/AppButton.vue'
+import axios from 'axios'
 
 const router = useRouter()
 
@@ -17,6 +18,7 @@ const confirmPassword = ref('')
 const errors = reactive({ name: '', email: '', password: '', confirmPassword: '' })
 const submitted = ref(false)
 const shake = ref(false)
+const formError = ref('')
 
 const activeField = ref(null) // 'name' | 'email' | 'password' | 'confirmPassword' | null
 const passwordVisible = ref(false)
@@ -44,14 +46,30 @@ function validate() {
   return !errors.name && !errors.email && !errors.password && !errors.confirmPassword
 }
 
-function handleSubmit() {
+async function handleSubmit() {
+  formError.value = ''
   const valid = validate()
   if (!valid) {
     triggerShake()
     return
   }
-  submitted.value = true
-  setTimeout(() => router.push('/login'), 1000)
+
+  try {
+    console.log("about to make request.")
+    const response = await axios.post('/api/auth/register', {
+      name: name.value,
+      email: email.value,
+      password: password.value,
+      confirmation: confirmPassword.value
+    })
+
+    submitted.value = true
+    setTimeout(() => router.push('/login'), 1000)
+
+  } catch (err) {
+      formError.value = err.response?.data?.error || 'Registration failed'
+      console.log(err);
+  }
 }
 </script>
 
@@ -116,6 +134,14 @@ function handleSubmit() {
             @blur="activeField = null"
             @visibility-change="(v) => (confirmVisible = v)"
           />
+          
+          <Transition
+            enter-active-class="error-drop"
+            leave-active-class="transition-opacity duration-150"
+            leave-to-class="opacity-0"
+          >
+            <p v-if="formError" class="rounded-md bg-rose-50 px-3 py-2 text-xs text-rose-600">{{ formError }}</p>
+          </Transition>
 
           <AppButton type="submit" variant="dark" show-arrow class="w-full justify-center">Create free account</AppButton>
         </form>

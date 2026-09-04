@@ -125,7 +125,6 @@ const loading = ref(false)
 const error = ref('')
 
 async function handleRegister() {
-
   error.value = ''
   loading.value = true
 
