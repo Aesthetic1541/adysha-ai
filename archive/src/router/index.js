@@ -69,28 +69,6 @@ async function check_me() {
   } catch (error) {
 
     console.log("Error checking authentication:", error.response.data);
-
-    // does not need this as already intercepting each failed request in main.js for token expiry
-    // // if the token has expired
-    // if (error.response.status === 401 && error.response.data.msg === "Token has expired") {
-    //   console.log("Token expired.");
-
-    // // regenerate new token
-    // return await axios.post("/api/auth/refresh", {}, { withCredentials: true })
-    //     .then(response => {
-    //       console.log("Refreshed token successfully");
-    //       console.log("Returning to check_me()");
-    //       return check_me(); // Ensure check_me() returns a value/promise if callers await this
-    //     })
-    //     .catch(error => {
-    //       console.log("Failed to refresh token.", error);
-    //       return false;
-    //     });
-
-    // }
-
-    // if there is anyother error
-    console.log("There is unknown error: ", error);
     return false;
   }
 }
