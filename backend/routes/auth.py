@@ -39,11 +39,21 @@ def register():
     db.session.add(user)
     db.session.commit()
 
-    # after succesfully registring the user, return the user's id, name, email, created_at as dic 
-    return jsonify({
-        "message": "Registration successfull",
+    # on successfull registration, login the user
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
+
+    # create response
+    response = jsonify({
+        "message": "Registration and login successful.",
         "user": user.to_dict()
-    }), 201
+    })
+
+    # attach httpOnly cookies
+    set_access_cookies(response, access_token)
+    set_refresh_cookies(response, refresh_token)
+
+    return response, 201
 
 
 # login route

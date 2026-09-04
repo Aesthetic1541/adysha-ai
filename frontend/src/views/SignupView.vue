@@ -64,7 +64,7 @@ async function handleSubmit() {
     })
 
     submitted.value = true
-    setTimeout(() => router.push('/login'), 1000)
+    setTimeout(() => router.replace({name: 'home'}), 1000)
 
   } catch (err) {
       formError.value = err.response?.data?.error || 'Registration failed'

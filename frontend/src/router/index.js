@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LandingPage from '../views/LandingPage.vue'
+import axios from 'axios'
 
 const routes = [
   {
@@ -29,7 +30,7 @@ const routes = [
     path: '/home',
     name: 'home',
     component: () => import('../views/HomeView.vue'),
-    meta: { requiresAuth: false },
+    meta: { requiresAuth: true },
   }
 ]
 
@@ -49,7 +50,8 @@ router.beforeEach(async (to, from) => {
     console.log("Isauthenticated: ", isAuthenticated);
 
     if (!isAuthenticated) {
-      return { name: 'Login' }
+      console.log("User is not authenticated. Redirecting to login.");
+      return { name: 'login' }
     }
   }
 })

@@ -53,7 +53,7 @@ async function handleSubmit() {
     })
 
     submitted.value = true
-    setTimeout(() => router.push('/home'), 900)
+    setTimeout(() => router.replace({ name: 'home' }), 900)
     return
 
   } catch (err) {

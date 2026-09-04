@@ -1,8 +1,20 @@
 <script setup>
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user.js'
+import { brand } from '../content/landing.content.js'
+import axios from 'axios'
 
 const userStore = useUserStore()
+const router = useRouter()
+
+async function logout() {
+  try {
+    await axios.post('/api/auth/logout')
+    router.push('/')
+  } catch (err) {
+    console.error(err)
+  }
+}
 </script>
 
 <template>
@@ -10,10 +22,16 @@ const userStore = useUserStore()
     <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
       <!-- Logo -->
       <RouterLink to="/home" class="font-serif text-lg font-semibold text-ink">
-        <slot name="logo">Brand</slot>
+        <slot name="logo">{{ brand.name }}</slot>
       </RouterLink>
 
       <div class="flex items-center gap-4">
+        <!-- Logout -->
+         <div  class="flex items-center gap-1.5 rounded-full border border-line hover:bg-panel px-3 py-1.5 cursor-pointer"
+         @click="logout">
+          Logout
+        </div>
+
         <!-- Streak -->
         <div
           class="flex items-center gap-1.5 rounded-full border border-line bg-panel px-3 py-1.5"

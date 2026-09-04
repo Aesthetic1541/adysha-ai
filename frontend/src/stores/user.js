@@ -12,7 +12,7 @@ export const useUserStore = defineStore('user', () => {
   const avatarUrl = ref('')
   const targetExam = ref('') // e.g. "JEE Main", "NEET"
   const streak = ref(0)
-  const hasCompletedOnboarding = ref(false)
+  const hasCompletedOnboarding = ref(true)
 
   const loading = ref(false)
   const error = ref(null)
