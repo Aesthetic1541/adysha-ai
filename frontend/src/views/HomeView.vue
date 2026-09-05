@@ -19,7 +19,7 @@ onMounted(async () => {
 
     <main class="mx-auto max-w-6xl px-6 py-10">
       <h1 class="font-serif text-2xl font-semibold text-ink">
-        Welcome back<span v-if="userStore.name">, {{ userStore.name }}</span>
+        Welcome<span v-if="userStore.name">, {{ userStore.name }}</span>
       </h1>
 
       <div class="mt-8 grid gap-6 lg:grid-cols-3">

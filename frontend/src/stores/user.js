@@ -2,11 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
 
-/**
- * Logged-in user state.
- * Adjust field names / endpoint to match your Flask API once it exists —
- * everything here is a placeholder shape based on what the Home page needs.
- */
+
 export const useUserStore = defineStore('user', () => {
   const name = ref('')
   const avatarUrl = ref('')
@@ -18,15 +14,17 @@ export const useUserStore = defineStore('user', () => {
   const error = ref(null)
 
   async function fetchProfile() {
+    console.log('Fetching user profile...');
     loading.value = true
     error.value = null
     try {
-      const { data } = await axios.get('/api/user/me')
+      const { data } = await axios.get('/api/auth/me')
+      console.log('Fetched user profile:', data);
       name.value = data.name
       avatarUrl.value = data.avatarUrl
-      targetExam.value = data.targetExam
+      targetExam.value = data.exam
       streak.value = data.streak
-      hasCompletedOnboarding.value = data.hasCompletedOnboarding
+      hasCompletedOnboarding.value = false //data.onboarding
     } catch (err) {
       error.value = err
     } finally {

@@ -1,5 +1,6 @@
 from flask import Flask
 from routes.auth import auth_bp
+from routes.onboarding import onboard_bp, ex_command
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 import os
@@ -29,8 +30,11 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 app.register_blueprint(auth_bp)
+app.register_blueprint(onboard_bp)
 
-
+with app.app_context():
+    db.create_all()
+    ex_command()
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

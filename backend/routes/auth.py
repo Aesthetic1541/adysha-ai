@@ -1,4 +1,4 @@
-from models import db, User
+from models import db, User, UserProfile
 from flask_jwt_extended import (
     create_access_token, 
     create_refresh_token, 
@@ -37,6 +37,12 @@ def register():
     user.set_password(data.get("password"))
 
     db.session.add(user)
+    db.session.flush()
+
+    # add user's profile
+    profile = UserProfile(user_id=user.id, streak=0)
+    db.session.add(profile)
+
     db.session.commit()
 
     # on successfull registration, login the user
