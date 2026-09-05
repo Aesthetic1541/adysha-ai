@@ -151,6 +151,31 @@ def exams():
             return jsonify({"error": "Database error", "details": str(e)}), 500
 
 
+@onboard_bp.route("/update", methods=["POST"])
+@jwt_required()
+def update():
+    user_id = get_jwt_identity()
+    data = request.get_json() or {}
+
+    if not data:
+        return jsonify({"error": "Missing parameters."}), 400
+
+    targetField = data.get("target")
+
+    match targetField:
+        case "onboarding":
+            db.session.execute(
+                db.update(UserProfile)
+                .where(UserProfile.user_id == user_id)
+                .values(onboarding = data.get("onboarding"))
+            )
+            db.session.commit()
+            return jsonify({"message": "Update successful."}), 200
+    
+    return jsonify({"error": "Invalid parameters."}), 400
+
+
+
 def ex_command():
     print("===================== RESPONSE ============================================================================")
     subjects = Subject.query.all()

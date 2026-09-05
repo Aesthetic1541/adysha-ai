@@ -24,7 +24,7 @@ export const useUserStore = defineStore('user', () => {
       avatarUrl.value = data.avatarUrl
       targetExam.value = data.exam
       streak.value = data.streak
-      hasCompletedOnboarding.value = false //data.onboarding
+      hasCompletedOnboarding.value = data.onboarding
     } catch (err) {
       error.value = err
     } finally {
@@ -34,6 +34,8 @@ export const useUserStore = defineStore('user', () => {
 
   function markOnboardingComplete() {
     hasCompletedOnboarding.value = true
+    axios.post('/api/onboarding/update', {"target": "onboarding", "onboarding": true})
+    .catch(err => console.error('Error marking onboarding complete:', err))
   }
 
   return {
